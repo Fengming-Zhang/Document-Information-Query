@@ -113,21 +113,38 @@ def Query():
                 # 下面求余弦距离
                 cosine = Cosine(query_vector,doc_vector)
                 if cosine != 0:
-                    cosine_map[cosine] = dictionary_ids[index]
+                    new_dicvalue = {np.linalg.norm(doc_vector):dictionary_ids[index]}
+                    if cosine not in cosine_map.keys():
+                        cosine_map[cosine] = {}
+                    cosine_map[cosine].update(new_dicvalue)
                 index += 1
                 print(index)
             # 对cosine字典按键反向排序
             cosine_sorted = sorted(cosine_map,reverse=True)
             print(cosine_sorted)
-            # 打印前20个文档的id
-            i = 0
+
             print("query_index = "+str(query_index))
+            
+            i = 0
+            j = 0
+            counter_map = 0
+            output_set = sorted(cosine_map[cosine_sorted[counter_map]], reverse=True)
+            output_20 = []       
             while i < 20:
-                output = []
-                output.append(queries_id[query_index])
-                output.append(cosine_map[cosine_sorted[i]])
-                writer.writerow(output)
+                temp = (cosine_map[cosine_sorted[counter_map]])[output_set[j]]
+                j += 1
                 i += 1
+                output_20.append(temp)
+                if j == len(cosine_map[cosine_sorted[counter_map]]):
+                    counter_map += 1
+                    j = 0
+                    output_set = sorted(cosine_map[cosine_sorted[counter_map]], reverse=True)
+            print(output_20)
+            for i in range(0, 20):
+                write_temp = []
+                write_temp.append(queries_id)
+                write_temp.append(output_20[i])
+                writer.writerow(write_temp)                
                 
     #            request = input("Request:")
 
