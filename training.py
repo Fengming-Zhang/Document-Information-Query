@@ -29,7 +29,7 @@ def EnlargeField():
 
 
 def CreateStopwords():
-    with open("stopwords-master/百度停用词表_Chinese.txt","r",encoding='UTF-8') as stopwords_file:
+    with open("stopwords-master/百度停用词表_Chinese.txt", "r", encoding='UTF-8') as stopwords_file:
         reader = stopwords_file.readlines()
         for line in reader:
             line = line[:-1]
@@ -53,9 +53,14 @@ def Tokenization():
                 continue
             documents.append(line)
     print("document_num = "+str(document_num))
-    dict = ["etf", "ppt", "绝句", "枪神纪", "道具城", "长句吧", "斗鱼tv"]
-    seg = pkuseg.pkuseg(user_dict=dict)
-    # seg = jieba
+    # 加载自定义词库
+    user_dict = []
+    with open("user_dict.txt", "r", encoding='UTF-8') as user_dict_file:
+        reader = user_dict_file.readlines()
+        for line in reader:
+            user_dict.append(line[:-1])
+
+    seg = pkuseg.pkuseg(user_dict=user_dict)
     # 建立字典：从id到词项的映射
     i = 0
     process = tqdm(total=len(documents))
@@ -92,15 +97,16 @@ def Training():
     # print(numbered_words)
     tf_idf = models.TfidfModel(numbered_words)
     print("Training done!")
-    tf_idf.save("tdata/title_trained_tfidf")
+    tf_idf.save("trained_tfidf")
 
 def SaveDict():
-    with open("tdata/title_dictionary_ids",'w') as f:
+    print("Saving data...")
+    with open("dictionary_ids",'w') as f:
         json.dump(dictionary_ids,f)
-    with open("tdata/title_dictionary_tokens",'w') as f:
+    with open("dictionary_tokens",'w') as f:
         json.dump(dictionary_tokens,f)
-    with open("tdata/title_numbered_words",'w') as f:
-        json.dump(numbered_words,f)
+    with open("numbered_words", 'w') as f:
+        json.dump(numbered_words, f)
         
 EnlargeField()
 dictionaries = {}

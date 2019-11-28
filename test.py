@@ -52,6 +52,7 @@ def CreateQueryDictionary():
     token_id_dictionary.update(dictionary.token2id)
     corpus_tfidf = tf_idf[numbered_words]
 
+
     #     i = 0
     #     for doc in dictionary_tokens:
     # #        numbered_word = dictionary.doc2bow(doc)
@@ -79,15 +80,19 @@ def LoadQueryItems():
 
 def Query():
     global dictionary, corpus_tfidf, tf_idf
-    user_dict = ["etf", "ppt", "绝句", "枪神纪", "道具城", "长句吧", "斗鱼tv"]
+    user_dict = []
+    with open("user_dict.txt", "r", encoding='UTF-8') as user_dict_file:
+        reader = user_dict_file.readlines()
+        for line in reader:
+            user_dict.append(line[:-1])
     seg = pkuseg.pkuseg(user_dict=user_dict)
-    with open("stopwords-master/百度停用词表.txt", "r", encoding='UTF-8') as stopwords_file:
+    with open("stopwords-master/百度停用词表_chinese.txt", "r", encoding='UTF-8') as stopwords_file:
         reader = stopwords_file.readlines()
         for line in reader:
             stopwords.append(line[:-1])
     # 所有文档的索引
     print("开始建立索引")
-    index = similarities.SparseMatrixSimilarity(corpus_tfidf, num_features=4549306)
+    index = similarities.SparseMatrixSimilarity(corpus_tfidf, num_features=len(dictionary))
     print("索引建立结束")
     with open("submission.csv", "w", encoding='UTF-8', newline='') as submissionfile:
         writer = csv.writer(submissionfile)
@@ -131,7 +136,6 @@ def Query():
                     break
                 sim_id_map[sim_sorted[k]] = list(set(sim_id_map[sim_sorted[k]]))
                 for i in range(0, len(sim_id_map[sim_sorted[k]])):
-
                     write_temp = [queries_id[query_index], sim_id_map[sim_sorted[k]][i]]
                     writer.writerow(write_temp)
                     num_of_doc += 1
